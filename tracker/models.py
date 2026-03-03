@@ -10,7 +10,7 @@ class Wallet(models.Model):
     def __str__(self):
         return f"{self.user.email}'s wallet"
     
-class Categorgy(models.Model):
+class Category(models.Model):
     INCOME = "INCOME"
     EXPENSE = "EXPENSE"
 
@@ -43,7 +43,7 @@ class Transaction(models.Model):
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name="transactions")
     type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
-    category = models.ForeignKey(Categorgy, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
 
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
