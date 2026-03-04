@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.forms import ValidationError
 
 # Create your models here.
 class Wallet(models.Model):
@@ -50,3 +51,25 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.type} - {self.amount}"
+    
+    
+    def clean(self):
+        if self.amount <= 0:
+            raise ValidationError("Amount should be greater than 0!!!")
+        
+        if self.pk:
+            old = Transaction.objects.get(pk=self.pk)
+            if old.wallet != self.wallet:
+                raise ValidationError("Changing wallet is not allowed.")
+            
+        if self.category and self.type:
+            if self.category.type != self.type:
+                raise ValidationError('Category type must match transaction type!!!')
+            
+        if self.category.user != self.wallet.user:
+            raise ValidationError("Category does not belong to this user.")
+
+            
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
