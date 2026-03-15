@@ -25,6 +25,8 @@ class Category(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        blank=True,
+        null=True,
         related_name="categories"
     )
 
@@ -66,8 +68,8 @@ class Transaction(models.Model):
             if self.category.type != self.type:
                 raise ValidationError('Category type must match transaction type!!!')
             
-        if self.category.user != self.wallet.user:
-            raise ValidationError("Category does not belong to this user.")
+        if self.category.user and self.category.user != self.wallet.user:
+                raise ValidationError("Category does not belong to this user.")
 
             
     def save(self, *args, **kwargs):
