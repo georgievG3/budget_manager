@@ -56,3 +56,22 @@ class IncomeByCategoryView(APIView):
         )
 
         return Response(data)
+    
+
+class DashboardView(APIView):
+
+    def get(self, request):
+        user = request.user
+        current_balance = user.wallet.current_balance
+        total_expenses = Transaction.objects.filter(wallet__user=user, type='EXPENSE').aggregate(total=Sum('amount'))['total'] or 0
+        total_income = Transaction.objects.filter(wallet__user=user, type='INCOME').aggregate(total=Sum('amount'))['total'] or 0
+        last_five_transactions = Transaction.objects.filter(wallet__user=user).order_by("-created_at")[:5]
+       
+
+
+        return Response({
+            "current_balance": current_balance,
+            "total_expenses": total_expenses,
+            "total_income": total_income,
+            "last_5_transactions": TransactionSerializer(last_five_transactions, many=True).data,
+            })
