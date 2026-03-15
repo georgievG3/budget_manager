@@ -177,7 +177,7 @@ last 5 transactions
 
 Clone the repository
 
-git clone https://github.com/yourusername/budget-manager.git
+git clone https://github.com/georgievG3/budget_manager.git
 
 Move into project folder
 
