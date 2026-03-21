@@ -5,8 +5,8 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from django.db.models import Sum
 from rest_framework.response import Response
-from .models import Wallet, Transaction
-from .serializers import WalletSerializer, TransactionSerializer
+from .models import Budget, Wallet, Transaction
+from .serializers import BudgetSerializer, WalletSerializer, TransactionSerializer
 
 class WalletViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Wallet.objects.all()
@@ -15,6 +15,7 @@ class WalletViewSet(viewsets.ReadOnlyModelViewSet):
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+
 
 
 class ExpenseByCategoryView(APIView):
@@ -75,3 +76,14 @@ class DashboardView(APIView):
             "total_income": total_income,
             "last_5_transactions": TransactionSerializer(last_five_transactions, many=True).data,
             })
+    
+
+class BudgetViewSet(viewsets.ModelViewSet):
+    queryset = Budget.objects.all()  
+    serializer_class = BudgetSerializer
+
+    def get_queryset(self):
+        return Budget.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
