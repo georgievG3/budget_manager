@@ -51,7 +51,7 @@ class Transaction(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
 
     description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.type} - {self.amount}"
@@ -60,6 +60,9 @@ class Transaction(models.Model):
     def clean(self):
         if self.amount <= 0:
             raise ValidationError("Amount should be greater than 0!!!")
+        
+        if not self.category:
+            raise ValidationError("Please select a category or a wallet!!!")
         
         if self.pk:
             old = Transaction.objects.get(pk=self.pk)
@@ -72,6 +75,7 @@ class Transaction(models.Model):
             
         if self.category.user and self.category.user != self.wallet.user:
                 raise ValidationError("Category does not belong to this user.")
+        
         
         if self.type == "EXPENSE" and self.category:
             today = timezone.now()

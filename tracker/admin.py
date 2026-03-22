@@ -6,3 +6,4 @@ admin.site.register(Wallet)
 admin.site.register(Transaction)
 admin.site.register(Category)
 admin.site.register(Budget)
+

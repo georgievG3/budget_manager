@@ -7,6 +7,7 @@ from django.db.models import Sum
 from rest_framework.response import Response
 from .models import Budget, Wallet, Transaction
 from .serializers import BudgetSerializer, WalletSerializer, TransactionSerializer
+from django.utils import timezone
 
 class WalletViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Wallet.objects.all()
@@ -64,9 +65,10 @@ class DashboardView(APIView):
     def get(self, request):
         user = request.user
         current_balance = user.wallet.current_balance
+        today = timezone.now()
         total_expenses = Transaction.objects.filter(wallet__user=user, type='EXPENSE').aggregate(total=Sum('amount'))['total'] or 0
         total_income = Transaction.objects.filter(wallet__user=user, type='INCOME').aggregate(total=Sum('amount'))['total'] or 0
-        last_five_transactions = Transaction.objects.filter(wallet__user=user).order_by("-created_at")[:5]
+        transactions_this_month = Transaction.objects.filter(wallet__user=user, created_at__year=today.year, created_at__month=today.month).order_by("-created_at")
        
 
 
@@ -74,7 +76,7 @@ class DashboardView(APIView):
             "current_balance": current_balance,
             "total_expenses": total_expenses,
             "total_income": total_income,
-            "last_5_transactions": TransactionSerializer(last_five_transactions, many=True).data,
+            "transactions_this_month": TransactionSerializer(transactions_this_month, many=True).data,
             })
     
 
